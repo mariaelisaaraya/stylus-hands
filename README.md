@@ -93,6 +93,8 @@ Usa Docker para descargar y ejecutar la imagen del nodo de Arbitrum:
 
 #### **5.1 Descargar la imagen del nodo**
 
+Ya se puede continuar con la referencia del [GitHub Original](https://github.com/OffchainLabs/cargo-stylus)
+
 ```bash
 docker pull offchainlabs/arbitrum
 ```
