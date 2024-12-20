@@ -1,145 +1,164 @@
-# Arbitrum Node Setup Guide
+# **Arbitrum Node Setup Guide**
 
-Este documento contiene los pasos y comandos utilizados para configurar un nodo de Arbitrum, incluyendo la instalación de Rust, Docker, y `cargo-stylus`, así como la solución de problemas encontrados durante el proceso.
+Este documento describe los pasos necesarios para configurar y ejecutar un nodo de Arbitrum, incluyendo la instalación de Rust, Docker, y cargo-stylus, así como la solución de problemas encontrados durante el proceso.
 
-## Requisitos Previos
+---
 
-1. **Sistema operativo:** Ubuntu en un entorno virtual dentro de Windows.
-2. **Virtualización habilitada:** Asegúrate de que la virtualización esté activada en tu BIOS.
-3. **Docker instalado y funcionando:** Docker será necesario para ejecutar el nodo de Arbitrum.
+## **Requisitos Previos**
 
-## Pasos para Configurar el Nodo
+- **Sistema operativo:** Ubuntu ejecutándose en un entorno virtual dentro de Windows.  
+- **Virtualización habilitada:** Activa la virtualización en tu BIOS si aún no lo has hecho.  
+- **Docker instalado y funcionando:** Docker será necesario para ejecutar el nodo de Arbitrum.  
+
+---
+
+## **Pasos para Configurar el Nodo**
 
 ### **1. Configurar Docker**
 
-Primero, instala Docker y asegúrate de que está funcionando correctamente:
+1. Instala Docker y asegúrate de que está funcionando correctamente:  
+   ```bash
+   sudo apt update
+   sudo apt install docker.io
+   sudo systemctl start docker
+   sudo systemctl enable docker
+   ```
 
-```bash
-sudo apt update
-sudo apt install docker.io
-sudo systemctl start docker
-sudo systemctl enable docker
-```
+2. Verifica la instalación de Docker:  
+   ```bash
+   docker --version
+   ```
 
-Verifica la instalación de Docker:
-
-```bash
-docker --version
-```
+---
 
 ### **2. Instalar Rust**
 
-Rust es necesario para compilar y utilizar herramientas relacionadas con el nodo de Arbitrum. Sigue estos pasos para instalarlo:
+Rust es necesario para herramientas relacionadas con el nodo de Arbitrum.
 
-#### **2.1 Instalar Rust usando Rustup**
-
+#### **2.1 Instalar Rust usando Rustup**  
+Instala Rust ejecutando el siguiente comando:  
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
-
-Sigue las instrucciones en pantalla y luego reinicia tu terminal o ejecuta:
-
+Sigue las instrucciones y luego reinicia tu terminal o ejecuta:  
 ```bash
 source $HOME/.cargo/env
 ```
 
-Verifica la instalación:
-
+Verifica la instalación:  
 ```bash
 rustc --version
 ```
 
-#### **2.2 Actualizar Rust**
-
-En caso de necesitar una versión específica (como 1.81.0):
-
+#### **2.2 Actualizar Rust**  
+Si necesitas una versión específica de Rust (como 1.81.0):  
 ```bash
 rustup install 1.81.0
 rustup default 1.81.0
 ```
 
-Confirma que la versión es correcta:
-
+Confirma que la versión es correcta:  
 ```bash
 rustc --version
 ```
 
+---
+
 ### **3. Instalar Dependencias de Sistema**
 
-Antes de instalar `cargo-stylus`, asegúrate de tener instaladas las herramientas necesarias:
-
+Antes de instalar cargo-stylus, instala las herramientas necesarias:  
 ```bash
 sudo apt update
 sudo apt install pkg-config libssl-dev
 ```
 
-### **4. Instalar `cargo-stylus`**
+---
 
-Instala `cargo-stylus` con el siguiente comando:
+### **4. Instalar cargo-stylus**
 
+Instala cargo-stylus con:  
 ```bash
 cargo install cargo-stylus
 ```
 
-Verifica la instalación:
-
+Verifica la instalación:  
 ```bash
 cargo stylus --version
 ```
 
-### **5. Configurar el Nodo de Arbitrum**
+---
 
-Usa Docker para descargar y ejecutar la imagen del nodo de Arbitrum:
+### **5. Configurar y Ejecutar el Nodo de Arbitrum**
 
-#### **5.1 Descargar la imagen del nodo**
+Usa Docker para descargar y ejecutar la imagen del nodo de Arbitrum.
 
-Ya se puede continuar con la referencia del [GitHub Original](https://github.com/OffchainLabs/cargo-stylus)
-
+#### **5.1 Descargar la imagen del [nodo](https://github.com/OffchainLabs/nitro-devnode)**   
 ```bash
-docker pull offchainlabs/arbitrum
+docker pull offchainlabs/nitro-dev-node
 ```
 
-#### **5.2 Ejecutar el contenedor del nodo**
-
+#### **5.2 Ejecutar el contenedor del [nodo](https://github.com/OffchainLabs/nitro-devnode)**  
 ```bash
-docker run -d -p 8547:8547 offchainlabs/arbitrum
+docker run -d -p 8547:8547 offchainlabs/nitro-dev-node
+```
+Esto iniciará el nodo en el puerto `8547`.
+
+#### **5.3 Verificar que el nodo está corriendo:**
+   ```bash
+   curl http://localhost:8547
+   ```
+   Deberías recibir una respuesta indicando que el nodo está en funcionamiento.
+
+#### **5.4 Configuración del Nodo y Resultados**
+
+El nodo Nitro dev se configura correctamente con los siguientes parámetros:
+- **Chain ID:** 412346
+- **Base de datos:** Pebble (por defecto)
+- **Bloque Génesis:** Hash = ada78e..915675
+
+#### **5.5  Despliegue de Contratos**
+- **Cache Manager** desplegado en la dirección `0x11...e49`.
+- El contrato fue registrado exitosamente como **WASM Cache Manager**.
+
+## Uso
+
+### Conexión al nodo
+Puedes conectarte al nodo local utilizando herramientas como `Hardhat`, `Remix` o `Web3.js`. Asegúrate de usar la dirección `http://localhost:8547` como punto de conexión.
+
+### Ejemplo con Web3.js
+```javascript
+const Web3 = require('web3');
+const web3 = new Web3('http://localhost:8547');
+
+web3.eth.getBlockNumber().then(console.log);
 ```
 
-Este comando ejecutará el nodo en el puerto 8547.
+## Problemas conocidos
+- La advertencia `parent-chain-is-arbitrum` puede aparecer durante la configuración. Esto no afecta la funcionalidad del nodo, pero en futuras actualizaciones podrías incluir esta configuración.
+- El mensaje `feedOneMsg failed to send` ocurre al inicializar el nodo, pero es inofensivo.
+- `parent-chain-is-arbitrum`: Informativa, no afecta al funcionamiento actual.
+- `feedOneMsg failed to send`: Ocurre al inicializar pero no genera errores críticos.
+---
 
-### **6. Verificar el Nodo**
+## **Solución de Problemas**
 
-Para confirmar que el nodo está funcionando, realiza una solicitud al endpoint:
-
-```bash
-curl http://localhost:8547
-```
-
-Si recibes una respuesta válida, tu nodo está funcionando correctamente.
-
-## Solución de Problemas
-
-### **Error: pkg-config not found**
-
-Si encuentras un error relacionado con `pkg-config`, instala la herramienta:
-
+### **Error: pkg-config not found**  
+Si encuentras este error, instala la herramienta:  
 ```bash
 sudo apt install pkg-config
 ```
 
-### **Error: OpenSSL not found**
-
-Si falta OpenSSL o sus dependencias de desarrollo:
-
+### **Error: OpenSSL not found**  
+Si falta OpenSSL o sus dependencias de desarrollo:  
 ```bash
 sudo apt install libssl-dev
 ```
 
-### **Rutas incorrectas en Rust**
-
-Si hay problemas con versiones de Rust o rutas incorrectas, asegúrate de que `$HOME/.cargo/bin` esté en tu variable `PATH`:
-
+### **Rutas incorrectas en Rust**  
+Si hay problemas con las rutas, asegúrate de que `$HOME/.cargo/bin` está en tu variable PATH:  
 ```bash
 echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 ```
+
+---
